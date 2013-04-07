@@ -8,6 +8,10 @@ jQuery(function($) {
     console.log("through this code");
 });
 
+function interfaceOverlay(){
+    
+}
+
 function AbstractOverlay(){
     this.$window = $(window);
     this.$target= $('.target');
@@ -25,28 +29,29 @@ function AbstractOverlay(){
     this.mainTop;
 }
 
-AbstractOverlay.prototype.maxWidth = function(target,subject,window){
-    var max;
-    if(target >= subject){
-        if(target !== window){
-            max = target;
-        }else{
-            max = subject
-        }   
-    }else if(target <= subject){
-        max = subject;
-    }
-    return max;
-}
-
-AbstractOverlay.prototype.maxTop = function(target){
-    var max;
-    if(target < 0){
-        max = 0;
-    }else{
-        max = target;
-    }
-    return max;
+AbstractOverlay.prototype = {
+        maxWidth : function(target,subject,window){
+            var max;
+            if(target >= subject){
+                if(target !== window){
+                     max = target;
+                }else{
+                    max = subject
+                }   
+            }else if(target <= subject){
+                max = subject;
+            }
+            return max;
+        },
+        maxTop : function(target){
+            var max;
+            if(target < 0){
+                max = 0;
+            }else{
+                max = target;
+            }
+            return max;
+        }
 }
 
 function Overlay(){
@@ -74,9 +79,9 @@ Overlay.prototype = {
 
                 var $img = mine.$overlayMain.find('img');
 
-                var headerSize = { x:$overlayHeader.width(), y:$overlayHeader.height() };
-                var footerSize = { x:$overlayFooter.width(), y:$overlayFooter.height() };
-                var imgSize    = { x:$img.width(), y:$img.height() };
+                var headerSize = { x:$overlayHeader.width(), y:$overlayHeader.height() },
+                    footerSize = { x:$overlayFooter.width(), y:$overlayFooter.height() },
+                    imgSize    = { x:$img.width(), y:$img.height() };
                 
                 mine.mainHeight = headerSize.y + footerSize.y + imgSize.y;
               
