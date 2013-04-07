@@ -1,37 +1,60 @@
 jQuery(function($) {
     if (typeof window.console === "undefined") { window.console = {} } 
     if (typeof window.console.log !== "function") { window.console.log = function () {}}
-    var init = {};
-    $.Me = init;
-    init.createDom = document.createDocumentFragment();
+    $.Me = {};
+    $.Me.createDom = document.createDocumentFragment();
  
-    Overlay.call(init);
+    Overlay.call(new AbstractOverlay);
     console.log("through this code");
 });
+
+function AbstractOverlay(){
+    this.$window = $(window);
+    this.$target= $('.target');
+ 
+    this.$overlayBg    = $('#overlayBg');
+    this.$overlayClose = $('#overlayClose');
+    this.overlayMain   = '.overlayMain';
+    this.overlayHeader = 'div.overlayHeader';
+    this.overlayFooter = 'div.overlayFooter';
+    this.$overlayCloseImg = $('#overlayClose').find('img');
+    this.overlayCloseSize = { x:this.$overlayCloseImg.width(), y:this.$overlayCloseImg.height() };
+    this.$nowMain;
+    this.mainWidth;
+    this.mainHeight;
+    this.mainTop;
+}
+
+AbstractOverlay.prototype.maxWidth = function(target,subject,window){
+    var max;
+    if(target >= subject){
+        if(target !== window){
+            max = target;
+        }else{
+            max = subject
+        }   
+    }else if(target <= subject){
+        max = subject;
+    }
+    return max;
+}
+
+AbstractOverlay.prototype.maxTop = function(target){
+    var max;
+    if(target < 0){
+        max = 0;
+    }else{
+        max = target;
+    }
+    return max;
+}
 
 function Overlay(){
     if(!$('body.Overlay').length){ return; }
 
-    var mine = renew(this);
-
-    mine.$window = $(window);
-    mine.$target= $('.target');
- 
-    mine.$overlayBg    = $('#overlayBg');
-    mine.$overlayClose = $('#overlayClose');
-    mine.overlayMain   = '.overlayMain';
-    mine.overlayHeader = 'div.overlayHeader';
-    mine.overlayFooter = 'div.overlayFooter';
-    mine.$overlayCloseImg = $('#overlayClose').find('img');
-    mine.overlayCloseSize = {x:mine.$overlayCloseImg.width(),y:mine.$overlayCloseImg.height()};
-    mine.$nowMain;
-    mine.mainWidth;
-    mine.mainHeight;
-    mine.mainTop;
-
-    Overlay.prototype.targetClick.call(mine);
-    Overlay.prototype.hideOverlay.call(mine);
-    Overlay.prototype.resizeWin.call(mine);
+    Overlay.prototype.targetClick.call(this);
+    Overlay.prototype.hideOverlay.call(this);
+    Overlay.prototype.resizeWin.call(this);
 }
 Overlay.prototype = {
         targetClick:function(){
@@ -57,9 +80,9 @@ Overlay.prototype = {
                 
                 mine.mainHeight = headerSize.y + footerSize.y + imgSize.y;
               
-                mine.mainTop    = Overlay.prototype.maxTop( (winSize.y - mine.mainHeight ) / 2);
-                mine.mainWidth  = maxWidth( headerSize.x , imgSize.x , winSize.x);
-                mine.mainWidth  = maxWidth( footerSize.x , mine.mainWidth , winSize.x);
+                mine.mainTop    = mine.maxTop( (winSize.y - mine.mainHeight ) / 2);
+                mine.mainWidth  = mine.maxWidth( headerSize.x , imgSize.x , winSize.x);
+                mine.mainWidth  = mine.maxWidth( footerSize.x , mine.mainWidth , winSize.x);
                
                 mine.$overlayMain.css({ 
                         'width' :mine.mainWidth,
@@ -69,23 +92,10 @@ Overlay.prototype = {
                 });
 
                 mine.$overlayClose.show().css({
-                        'top'   :Overlay.prototype.maxTop( (winSize.y - mine.mainHeight ) / 2),
+                        'top'   :mine.maxTop( (winSize.y - mine.mainHeight ) / 2),
                         'right' :( winSize.x - mine.mainWidth  ) / 2
                 });
 
-                function maxWidth(target,subject,window){
-                    var max;
-                    if(target >= subject){
-                        if(target !== window){
-                            max = target;
-                        }else{
-                            max = subject
-                        }   
-                    }else if(target <= subject){
-                        max = subject;
-                    }
-                    return max;
-                }
            });
         },
         resizeWin:function(){
@@ -100,12 +110,12 @@ Overlay.prototype = {
                     if(mine.$overlayBg.css('display') === 'none'){return;}
 
                     mine.$overlayMain.animate({
-                        'top' :Overlay.prototype.maxTop( (mine.$window.height() - mine.mainHeight ) / 2),
+                        'top' :mine.maxTop( (mine.$window.height() - mine.mainHeight ) / 2),
                         'left':( mine.$window.width()  - mine.mainWidth)  / 2
                     });
 
                     mine.$overlayClose.fadeIn(800).css({
-                        'top'   :Overlay.prototype.maxTop( ( mine.$window.height() - mine.mainHeight ) / 2 ),
+                        'top'   :mine.maxTop( ( mine.$window.height() - mine.mainHeight ) / 2 ),
                         'right' :( mine.$window.width() - mine.mainWidth  ) / 2
                     });
                 
@@ -128,15 +138,6 @@ Overlay.prototype = {
                 mine.$overlayBg.hide();
                 mine.$overlayClose.hide();
             });
-        },
-        maxTop:function(target){
-            var max;
-            if(target < 0){
-                 max = 0;
-            }else{
-                max = target;
-            }
-            return max;
         }
 };
 
@@ -145,17 +146,7 @@ function renew(obj) {
     if (obj == null || typeof obj != "object") return obj; 
     var copy = obj.constructor(); 
     for (var attr in obj) { 
-        if (obj.hasOwnProperty(attr)) copy[attr] = obj[attr]; 
-    } 
+        if (obj.hasOwnProperty(attr))copy[attr] = obj[attr]; 
+    }
     return copy; 
 } 
-
-
-
-
-
-
-
-
-
-
