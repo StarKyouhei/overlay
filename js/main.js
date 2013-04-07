@@ -1,66 +1,53 @@
-/* ver 0.2
- *`init` is this design initialize
- *`mine` is class variable
- *`$.Me` is public and this variable is jQuery Object add
- * 
- *Help debug Branch!
- */
-
 jQuery(function($) {
     if (typeof window.console === "undefined") { window.console = {} } 
     if (typeof window.console.log !== "function") { window.console.log = function () {}}
     var init = {};
     $.Me = init;
     init.createDom = document.createDocumentFragment();
-
-    //Build.call(init);
-    //View.call(init);
-    EventCollect.call(init);
+ 
+    Overlay.call(init);
     console.log("through this code");
 });
 
-function Build(){
-    console.log("call Build");
-}
-Build.prototype = {
-};
+function Overlay(){
+    if(!$('body.Overlay').length){ return; }
 
-function View(){
-    console.log("call View");
-}
-View.prototype = {
-};
-
-function EventCollect(){
-    console.log("call EventCollect");
     var mine = renew(this);
+
     mine.$window = $(window);
     mine.$target= $('.target');
-    mine.overlayTargetName = 'div.overlayTarget';    
-    mine.$overlayTarget;
+ 
+    mine.$overlayBg    = $('#overlayBg');
+    mine.$overlayClose = $('#overlayClose');
+    mine.overlayMain   = '.overlayMain';
+    mine.overlayHeader = 'div.overlayHeader';
+    mine.overlayFooter = 'div.overlayFooter';
+    mine.$overlayCloseImg = $('#overlayClose').find('img');
+    mine.overlayCloseSize = {x:mine.$overlayCloseImg.width(),y:mine.$overlayCloseImg.height()};
     mine.$nowMain;
     mine.mainWidth;
     mine.mainHeight;
     mine.mainTop;
-    mine.padding = {x:30,y:0};
 
-    EventCollect.prototype.clickH1.call(mine);
-    EventCollect.prototype.resizeWin.call(mine);
+    Overlay.prototype.targetClick.call(mine);
+    Overlay.prototype.hideOverlay.call(mine);
+    Overlay.prototype.resizeWin.call(mine);
 }
-EventCollect.prototype = {
-        clickH1:function(){
+Overlay.prototype = {
+        targetClick:function(){
             var mine = this;          
     
-            mine.$target.on('click',function(){
-                mine.$overlayTarget = $(this).next(mine.overlayTargetName);
-                mine.$overlayMain   = mine.$overlayTarget.next('div.overlayMain');
-                var  $overlayHeader = mine.$overlayMain.find('div.overlayHeader'),
-                     $overlayFooter = mine.$overlayMain.find('div.overlayFooter');
+            mine.$target.on('click',function(e){
+                e.preventDefault();  
+                mine.$overlayMain   = $(this).next(mine.overlayMain);
+  
+                var  $overlayHeader = mine.$overlayMain.find(mine.overlayHeader),
+                     $overlayFooter = mine.$overlayMain.find(mine.overlayFooter);
 
                 var winSize  = { x:mine.$window.width(), y:mine.$window.height()};
                 
-                mine.$overlayTarget.show().css({'width':winSize.x,'height':winSize.y});
-                mine.$overlayMain.show();
+                mine.$overlayBg.show().css({'width':winSize.x,'height':winSize.y});
+                mine.$overlayMain.fadeIn();
 
                 var $img = mine.$overlayMain.find('img');
 
@@ -70,18 +57,21 @@ EventCollect.prototype = {
                 
                 mine.mainHeight = headerSize.y + footerSize.y + imgSize.y;
               
-                mine.mainTop    = maxTop( (winSize.y - mine.mainHeight ) / 2 - mine.padding.y );
+                mine.mainTop    = Overlay.prototype.maxTop( (winSize.y - mine.mainHeight ) / 2);
                 mine.mainWidth  = maxWidth( headerSize.x , imgSize.x , winSize.x);
                 mine.mainWidth  = maxWidth( footerSize.x , mine.mainWidth , winSize.x);
                
                 mine.$overlayMain.css({ 
-                        'width' :mine.padding.x  * 2 + mine.mainWidth,
-                        'height':mine.padding.y * 2 + mine.mainHeight,
+                        'width' :mine.mainWidth,
+                        'height':mine.mainHeight,
                         'top'   :mine.mainTop, 
-                        'left'  :( winSize.x - mine.mainWidth  ) / 2 - mine.padding.x
+                        'left'  :( winSize.x - mine.mainWidth  ) / 2
                 });
 
-                EventCollect.prototype.hideOverlay.call(mine);
+                mine.$overlayClose.show().css({
+                        'top'   :Overlay.prototype.maxTop( (winSize.y - mine.mainHeight ) / 2),
+                        'right' :( winSize.x - mine.mainWidth  ) / 2
+                });
 
                 function maxWidth(target,subject,window){
                     var max;
@@ -102,26 +92,51 @@ EventCollect.prototype = {
             var mine = this;
             var timer = false;
             mine.$window.resize(function(){
+                mine.$overlayClose.hide();
                 if (timer !== false) {
                     clearTimeout(timer);
                 }
                 timer = setTimeout(function() {
+                    if(mine.$overlayBg.css('display') === 'none'){return;}
+
                     mine.$overlayMain.animate({
-                        'top' :maxTop( (mine.$window.height() - mine.mainHeight ) / 2 - mine.padding.y ),
-                        'left':( mine.$window.width()  - mine.mainWidth)  / 2 - mine.padding.x 
+                        'top' :Overlay.prototype.maxTop( (mine.$window.height() - mine.mainHeight ) / 2),
+                        'left':( mine.$window.width()  - mine.mainWidth)  / 2
                     });
-                   // mine.$overlayMain.css({ 'left':( mine.$window.width() - mine.mainWidth) / 2 - mine.padding.x });
+
+                    mine.$overlayClose.fadeIn(800).css({
+                        'top'   :Overlay.prototype.maxTop( ( mine.$window.height() - mine.mainHeight ) / 2 ),
+                        'right' :( mine.$window.width() - mine.mainWidth  ) / 2
+                    });
+                
                 }, 200);
-    
-                $(mine.overlayTargetName).filter(':visible').css({'width':mine.$window.width(),'height':mine.$window.height()});
+
+                mine.$overlayBg.css({'width':mine.$window.width(),'height':mine.$window.height()});
             });
         },
         hideOverlay:function(){
             var mine = this;
-            mine.$overlayTarget.on('click',function(e){
-                    mine.$overlayMain.hide();
-                    $(this).hide();
+            mine.$overlayBg.on('click',function(e){
+                e.preventDefault();
+                mine.$overlayMain.hide();
+                mine.$overlayBg.hide();
+                mine.$overlayClose.hide();
             });
+            mine.$overlayClose.on('click',function(e){
+                e.preventDefault();
+                mine.$overlayMain.hide();
+                mine.$overlayBg.hide();
+                mine.$overlayClose.hide();
+            });
+        },
+        maxTop:function(target){
+            var max;
+            if(target < 0){
+                 max = 0;
+            }else{
+                max = target;
+            }
+            return max;
         }
 };
 
@@ -134,13 +149,13 @@ function renew(obj) {
     } 
     return copy; 
 } 
-function maxTop(target){
-    var max;
-    if(target < 0){
-        max = 0;
-    }else{
-        max = target;
-    }
-    return max;
-}
+
+
+
+
+
+
+
+
+
 

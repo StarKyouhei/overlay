@@ -1,35 +1,51 @@
 @charset "UTF-8";
-
+html,body {
+    height: 100%;
+    overflow-y: hidden;
+    overflow-x: auto;
+    margin:0;
+}
+html #Wrapper{
+    overflow: auto;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
 h1,h2,h3{
     margin:0;
     padding:10px 0;
 }
-body{
-    margin:0;
-}
-div.overlayWrapper{
-    
-}
-div.overlayTarget{
-    position:fixed;
-    top:0;
+#overlayBg{
+    position:fixed !important;
+    position:absolute;
     z-index:20;
     display:none;
     background:url('../img/overlay.png');
+}
+#overlayBg p{
+    display:none;
+}
+#overlayClose{
+    display:none;
+    position:absolute;
+    z-index:80;
+    cursor:pointer;
+}
+#overlayClose img{
+    display:block;
+    padding-top:10px;
 }
 
 div.overlayMain{
     display:none;
     position:absolute;
-    top:0;
     z-index:40;
     background:#fff;
+    padding:10px;
     border:2px solid #ccc;
 }
 
 div.overlayMain img{
-    margin:0 auto;
-    display:block;
     border:2px solid #ccc;
 }
 
