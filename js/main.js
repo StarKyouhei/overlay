@@ -8,11 +8,13 @@ jQuery(function($) {
     console.log("through this code");
 });
 
-function interfaceOverlay(){
-    
+function interface(){
+    this.hoge = 'interface';
+    AbstracetOverlay.call(this);
 }
 
 function AbstractOverlay(){
+  
     this.$window = $(window);
     this.$target= $('.target');
  
@@ -27,6 +29,7 @@ function AbstractOverlay(){
     this.mainWidth;
     this.mainHeight;
     this.mainTop;
+    this.$img;
 }
 
 AbstractOverlay.prototype = {
@@ -41,6 +44,7 @@ AbstractOverlay.prototype = {
             }else if(target <= subject){
                 max = subject;
             }
+
             return max;
         },
         maxTop : function(target){
@@ -78,7 +82,9 @@ Overlay.prototype = {
                 mine.$overlayMain.fadeIn();
 
                 var $img = mine.$overlayMain.find('img');
+                
 
+               
                 var headerSize = { x:$overlayHeader.width(), y:$overlayHeader.height() },
                     footerSize = { x:$overlayFooter.width(), y:$overlayFooter.height() },
                     imgSize    = { x:$img.width(), y:$img.height() };
@@ -94,11 +100,14 @@ Overlay.prototype = {
                         'height':mine.mainHeight,
                         'top'   :mine.mainTop, 
                         'left'  :( winSize.x - mine.mainWidth  ) / 2
+                       ,'position':'fixed'
+                      
                 });
 
                 mine.$overlayClose.show().css({
                         'top'   :mine.maxTop( (winSize.y - mine.mainHeight ) / 2),
                         'right' :( winSize.x - mine.mainWidth  ) / 2
+                       ,'position':'fixed' 
                 });
 
            });
@@ -107,7 +116,7 @@ Overlay.prototype = {
             var mine = this;
             var timer = false;
             mine.$window.resize(function(){
-                mine.$overlayClose.hide();
+                mine.$overlayClose.hide( 0 );
                 if (timer !== false) {
                     clearTimeout(timer);
                 }
@@ -119,7 +128,7 @@ Overlay.prototype = {
                         'left':( mine.$window.width()  - mine.mainWidth)  / 2
                     });
 
-                    mine.$overlayClose.fadeIn(800).css({
+                    mine.$overlayClose.fadeIn(2000).css({
                         'top'   :mine.maxTop( ( mine.$window.height() - mine.mainHeight ) / 2 ),
                         'right' :( mine.$window.width() - mine.mainWidth  ) / 2
                     });
